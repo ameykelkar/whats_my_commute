@@ -106,3 +106,5 @@ if api_key and source and destination:
         st.info("No travel time data available for today.")
 else:
     st.warning("Missing configuration. Please check your API key and route settings.")
+
+st.info("🚀 🚀 Coming Soon: Smart Auto-Refresh! 🔄 Automatically updates your route during:\n\n🏠 Home → 🏢 Office (8–10 AM) \n\n🏢 Office → 🏠 Home (5–7 PM)")
