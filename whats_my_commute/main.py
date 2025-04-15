@@ -46,6 +46,12 @@ destination = destination_address
 
 # Main App
 st.title("⏱ What's My Commute 🚗📍")
+# Display most recent travel time at the top
+today = datetime.now(pytz.timezone('US/Pacific')).date()
+filtered_data = [entry for entry in st.session_state['data'] if entry['timestamp'].date() == today]
+latest_entry = max(filtered_data, key=lambda x: x['timestamp']) if filtered_data else None
+if latest_entry:
+    st.success(f"🟢 Most recent travel time: **{latest_entry['duration']}** at {latest_entry['timestamp'].strftime('%I:%M %p')}")
 st_autorefresh(interval=refresh_interval*1000, key="datarefresh")
 st.info(f"🕑 Note: After 2 PM, the source and destination are automatically swapped 🔄\n\nCurrent route: {source_label} → {destination_label}")
 
@@ -86,10 +92,6 @@ if api_key and source and destination:
 
     # Display the filtered data in a table
     if filtered_data:
-        # Display most recent travel time
-        latest_entry = max(filtered_data, key=lambda x: x['timestamp'])
-        st.success(f"🟢 Most recent travel time: **{latest_entry['duration']}** at {latest_entry['timestamp'].strftime('%I:%M %p')}")
-
         df = pd.DataFrame(filtered_data)
         df.rename(columns={"timestamp": "Time", "duration": "Duration", "route": "Route"}, inplace=True)
         df = df[["Route"] + [col for col in df.columns if col != "Route"]]
