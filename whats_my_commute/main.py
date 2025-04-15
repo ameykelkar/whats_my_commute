@@ -15,11 +15,17 @@ if 'data' not in st.session_state:
     if os.path.exists("commute_data.pkl"):
         with open("commute_data.pkl", "rb") as f:
             st.session_state['data'] = pickle.load(f)
+        for entry in st.session_state['data']:
+            if entry['timestamp'].tzinfo is None:
+                entry['timestamp'] = entry['timestamp'].replace(tzinfo=datetime.now().astimezone().tzinfo)
     else:
         st.session_state['data'] = []
 
 if 'last_updated' not in st.session_state and st.session_state['data']:
-    st.session_state['last_updated'] = st.session_state['data'][-1]['timestamp']
+    last_ts = st.session_state['data'][-1]['timestamp']
+    if last_ts.tzinfo is None:
+        last_ts = last_ts.replace(tzinfo=datetime.now().astimezone().tzinfo)
+    st.session_state['last_updated'] = last_ts
 
 # Configuration (non-editable)
 api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
@@ -77,6 +83,11 @@ if api_key and source and destination:
     # Filter data to include only today's entries
     today = datetime.now().astimezone().date()
     filtered_data = [entry for entry in st.session_state['data'] if entry['timestamp'].date() == today]
+
+    # Ensure each entry has a route key
+    for entry in filtered_data:
+        if "route" not in entry:
+            entry["route"] = f"{source_label} → {destination_label}"
 
     # Display the filtered data in a table
     if filtered_data:
