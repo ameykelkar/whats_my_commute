@@ -1,0 +1,20 @@
+[project]
+name = "whats_my_commute"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Amey Kelkar",email = "ameyk@live.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "streamlit (>=1.44.1,<2.0.0)",
+    "googlemaps (>=4.10.0,<5.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "streamlit-autorefresh (>=1.0.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

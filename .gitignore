@@ -1,0 +1,56 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.pipenv/
+pip-selfcheck.json
+
+# Streamlit-specific files
+.streamlit/config.toml
+.streamlit/credentials.toml
+
+# Jupyter Notebook checkpoints (if applicable)
+.ipynb_checkpoints
+
+# macOS metadata files
+.DS_Store
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Logs and data files
+*.log
+*.pkl
+*.db
+*.sqlite3
+
+# Environment variable definitions
+.env
+
+# PyCharm-specific
+*.iml
+out/
+
+# Test/report outputs
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+
+# Other
+*.bak
+
+# Ignore .streamlit
+.streamlit
