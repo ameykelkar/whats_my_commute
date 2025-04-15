@@ -28,7 +28,7 @@ destination_address = st.secrets["DESTINATION_ADDRESS"]
 refresh_interval = 300  # Configurable refresh interval in seconds
 
 # Swap source and destination if it's past 2 PM
-now = datetime.now()
+now = datetime.now().astimezone()
 if now.hour >= 14:
     source_address, destination_address = destination_address, source_address
     source_label, destination_label = "🏢 Office", "🏠 Home"
@@ -49,7 +49,7 @@ if api_key and source and destination:
     gmaps = googlemaps.Client(key=api_key)
 
     def get_travel_time():
-        now = datetime.now()
+        now = datetime.now().astimezone()
         print(f"[{now}] Calling Google Maps API for travel time from '{source}' to '{destination}'")
         directions = gmaps.directions(source, destination, mode="driving", departure_time=now)
         duration = directions[0]['legs'][0]['duration']['text']
@@ -67,7 +67,7 @@ if api_key and source and destination:
         get_travel_time()
         st.rerun()
     else:
-        time_since_last = (datetime.now() - st.session_state['last_updated']).total_seconds()
+        time_since_last = (datetime.now().astimezone() - st.session_state['last_updated']).total_seconds()
         if time_since_last > refresh_interval:
             get_travel_time()
             st.rerun()
@@ -75,7 +75,7 @@ if api_key and source and destination:
             st.toast(f"⚡ Using cached data. 🔄 Next refresh in {int(refresh_interval - time_since_last)} seconds ⏳")
 
     # Filter data to include only today's entries
-    today = datetime.now().date()
+    today = datetime.now().astimezone().date()
     filtered_data = [entry for entry in st.session_state['data'] if entry['timestamp'].date() == today]
 
     # Display the filtered data in a table
