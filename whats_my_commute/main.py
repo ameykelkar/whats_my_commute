@@ -8,12 +8,13 @@ import pytz
 from streamlit_autorefresh import st_autorefresh
 import os
 import pickle
+import fickling
 
 # Initialize session state
 if 'data' not in st.session_state:
     if os.path.exists("commute_data.pkl"):
         with open("commute_data.pkl", "rb") as f:
-            st.session_state['data'] = pickle.load(f)
+            st.session_state['data'] = fickling.load(f)
         for entry in st.session_state['data']:
             if entry['timestamp'].tzinfo is None:
                 entry['timestamp'] = entry['timestamp'].replace(tzinfo=pytz.timezone('US/Pacific'))
