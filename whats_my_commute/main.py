@@ -59,11 +59,7 @@ if api_key and source and destination:
         print(f"[{now}] Calling Google Maps API for travel time from '{source}' to '{destination}'")
         directions = gmaps.directions(source, destination, mode="driving", departure_time=now)
         duration = directions[0]['legs'][0]['duration']['text']
-        st.session_state['data'].append({
-            "timestamp": now,
-            "duration": duration,
-            "route": f"{source_label} → {destination_label}"
-        })
+        st.session_state['data'].append({"timestamp": now, "duration": duration})
         st.session_state['last_updated'] = now
         with open("commute_data.pkl", "wb") as f:
             pickle.dump(st.session_state['data'], f)
@@ -96,8 +92,7 @@ if api_key and source and destination:
         st.success(f"🟢 Most recent travel time: **{latest_entry['duration']}** at {latest_entry['timestamp'].strftime('%I:%M %p')}")
 
         df = pd.DataFrame(filtered_data)
-        df.rename(columns={"timestamp": "Time", "duration": "Duration", "route": "Route"}, inplace=True)
-        df = df[["Route", "Time", "Duration"]]
+        df.rename(columns={"timestamp": "Time", "duration": "Duration"}, inplace=True)
         df.sort_values(by="Time", ascending=False, inplace=True)
         df["Time"] = df["Time"].dt.strftime("%B %d, %Y %I:%M %p")
         # Show "Last updated at" above the table
