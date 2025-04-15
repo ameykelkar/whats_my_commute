@@ -3,9 +3,8 @@ from importlib.util import source_hash
 import streamlit as st
 import googlemaps
 import pandas as pd
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 import pytz
-from numpy.f2py.crackfortran import sourcecodeform
 from streamlit_autorefresh import st_autorefresh
 import os
 import pickle
@@ -74,7 +73,7 @@ if api_key and source and destination:
             get_travel_time()
             st.rerun()
         else:
-            st.toast(f"⚡ Using cached data. 🔄 Next refresh in {int(refresh_interval - time_since_last)} seconds ⏳")
+            st.info(f"⚡ Using cached data. 🔄 Next refresh in {int(refresh_interval - time_since_last)} seconds ⏳")
 
     # Filter data to include only today's entries
     today = datetime.now(pytz.timezone('US/Pacific')).date()
