@@ -95,7 +95,6 @@ if api_key and source and destination:
         df.rename(columns={"timestamp": "Time", "duration": "Duration"}, inplace=True)
         df.sort_values(by="Time", ascending=False, inplace=True)
         df["Time"] = df["Time"].dt.strftime("%B %d, %Y %I:%M %p")
-        df = df[["route", "Time", "Duration"]]
         # Show "Last updated at" above the table
         if 'last_updated' in st.session_state:
             last_updated = st.session_state['last_updated'].strftime("%B %d, %Y %I:%M %p")
