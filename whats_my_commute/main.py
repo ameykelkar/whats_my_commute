@@ -47,7 +47,7 @@ if 8 <= now.hour < 11:
     destination = destination_address
     source_label, destination_label = "🏠 Home", "🏢 Office"
     is_tracking = True
-elif 16 <= now.hour < 23:
+elif 16 <= now.hour < 18:
     # Evening window: Office → Home
     source = destination_address
     destination = source_address
