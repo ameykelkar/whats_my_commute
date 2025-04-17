@@ -41,13 +41,13 @@ if not api_key or not source_address or not destination_address:
 
 # Determine tracking window and set source/destination accordingly
 now = datetime.now(tz)
-if 8 <= now.hour < 11:
+if 22 <= now.hour < 23:
     # Morning window: Home → Office
     source = source_address
     destination = destination_address
     source_label, destination_label = "🏠 Home", "🏢 Office"
     is_tracking = True
-elif 16 <= now.hour < 18:
+elif 23 <= now.hour < 24:
     # Evening window: Office → Home
     source = destination_address
     destination = source_address
