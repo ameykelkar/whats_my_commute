@@ -33,6 +33,23 @@ api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
 source_address = st.secrets["SOURCE_ADDRESS"]
 destination_address = st.secrets["DESTINATION_ADDRESS"]
 refresh_interval = 300 # Configurable refresh interval in seconds (5 minutes)
+# Tracking window hours (24h format)
+morning_start, morning_end = 22, 23
+# Tracking window hours (24h format)
+evening_start, evening_end = 23, 24
+# Helper to format hours into 12h with suffix
+def _12h_format(hour: int) -> str:
+    # Normalize 24 to 0 for correct midnight handling
+    hour = hour % 24
+    suffix = "AM" if hour < 12 else "PM"
+    h12 = hour % 12
+    if h12 == 0:
+        h12 = 12
+    return f"{h12} {suffix}"
+
+# Formatted window labels
+morning_label = f"{_12h_format(morning_start)}–{_12h_format(morning_end)}"
+evening_label = f"{_12h_format(evening_start)}–{_12h_format(evening_end)}"
 
 # Validate configuration
 if not api_key or not source_address or not destination_address:
@@ -41,13 +58,13 @@ if not api_key or not source_address or not destination_address:
 
 # Determine tracking window and set source/destination accordingly
 now = datetime.now(tz)
-if 22 <= now.hour < 23:
+if morning_start <= now.hour < morning_end:
     # Morning window: Home → Office
     source = source_address
     destination = destination_address
     source_label, destination_label = "🏠 Home", "🏢 Office"
     is_tracking = True
-elif 23 <= now.hour < 24:
+elif evening_start <= now.hour < evening_end:
     # Evening window: Office → Home
     source = destination_address
     destination = source_address
@@ -104,7 +121,7 @@ if latest_entry is None:
         get_travel_time()
         st.rerun()
     else:
-        st.info("⏱ Commute tracking is active only between 8–11 AM and 4–6 PM. Refresh occurs every 5 minutes during these windows.")
+        st.info(f"⏱ Commute tracking is active only between {morning_label} and {evening_label}. Refresh occurs every {refresh_interval // 60} minutes during these windows.")
 
 if latest_entry:
     st.success(f"🟢 Most recent travel time: **{latest_entry['duration']}** at {latest_entry['timestamp'].strftime('%I:%M %p')}")
@@ -149,4 +166,4 @@ if latest_entry:
         else:
             st.info("No travel time data available for today.")
     else:
-        st.info("⏱ Commute tracking is active only between 8–11 AM and 4–6 PM. Refresh occurs every 5 minutes during these windows.")
+        st.info(f"⏱ Commute tracking is active only between {morning_label} and {evening_label}. Refresh occurs every {refresh_interval // 60} minutes during these windows.")
