@@ -32,7 +32,7 @@ if 'last_updated' not in st.session_state and st.session_state['data']:
 api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
 source_address = st.secrets["SOURCE_ADDRESS"]
 destination_address = st.secrets["DESTINATION_ADDRESS"]
-refresh_interval = 300  # Configurable refresh interval in seconds (5 minutes)
+refresh_interval = 300 # Configurable refresh interval in seconds (5 minutes)
 
 # Validate configuration
 if not api_key or not source_address or not destination_address:
@@ -47,7 +47,7 @@ if 8 <= now.hour < 11:
     destination = destination_address
     source_label, destination_label = "🏠 Home", "🏢 Office"
     is_tracking = True
-elif 16 <= now.hour < 18:
+elif 16 <= now.hour < 23:
     # Evening window: Office → Home
     source = destination_address
     destination = source_address
@@ -66,50 +66,52 @@ st.title("⏱ What's My Commute 🚗📍")
 today = datetime.now(tz).date()
 filtered_data = [entry for entry in st.session_state['data'] if entry['timestamp'].date() == today]
 latest_entry = max(filtered_data, key=lambda x: x['timestamp']) if filtered_data else None
+
+def get_travel_time():
+    now = datetime.now(tz)
+    print(f"[{now}] Calling Google Routes API for travel time from '{source}' to '{destination}'")
+    url = "https://routes.googleapis.com/directions/v2:computeRoutes"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": api_key,
+        "X-Goog-FieldMask": "routes.duration,routes.distanceMeters"
+    }
+    payload = {
+        "origin": {
+            "address": source
+        },
+        "destination": {
+            "address": destination
+        },
+        "travelMode": "DRIVE",
+        "routingPreference": "TRAFFIC_AWARE"
+    }
+    response = requests.post(url, headers=headers, json=payload)
+    response.raise_for_status()
+    data = response.json()
+    duration_seconds = int(data['routes'][0]['duration'].rstrip('s'))
+    duration_text = f"{duration_seconds // 60} min"
+
+    st.session_state['data'].append({"timestamp": now, "duration": duration_text})
+    st.session_state['last_updated'] = now
+    with open("commute_data.pkl", "wb") as f:
+        pickle.dump(st.session_state['data'], f)
+
 # Handle case when no data is available yet
 if latest_entry is None:
     if is_tracking:
-        # Start initial refresh loop while waiting for first data
-        st_autorefresh(interval=refresh_interval*1000, key="initialrefresh")
-        st.info(f"🕑 Tracking active: Current route {source_label} → {destination_label}. Waiting for first data point...")
+        # Fetch first data immediately and rerun to display it
+        get_travel_time()
+        st.rerun()
     else:
         st.info("⏱ Commute tracking is active only between 8–11 AM and 4–6 PM. Refresh occurs every 5 minutes during these windows.")
+
 if latest_entry:
     st.success(f"🟢 Most recent travel time: **{latest_entry['duration']}** at {latest_entry['timestamp'].strftime('%I:%M %p')}")
 
     if is_tracking:
         st_autorefresh(interval=refresh_interval*1000, key="datarefresh")
         st.info(f"🕑 Tracking active: Current route {source_label} → {destination_label}")
-
-        def get_travel_time():
-            now = datetime.now(tz)
-            print(f"[{now}] Calling Google Routes API for travel time from '{source}' to '{destination}'")
-            url = "https://routes.googleapis.com/directions/v2:computeRoutes"
-            headers = {
-                "Content-Type": "application/json",
-                "X-Goog-Api-Key": api_key,
-                "X-Goog-FieldMask": "routes.duration,routes.distanceMeters"
-            }
-            payload = {
-                "origin": {
-                    "address": source
-                },
-                "destination": {
-                    "address": destination
-                },
-                "travelMode": "DRIVE",
-                "routingPreference": "TRAFFIC_AWARE"
-            }
-            response = requests.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
-            duration_seconds = int(data['routes'][0]['duration'].rstrip('s'))
-            duration_text = f"{duration_seconds // 60} min"
-
-            st.session_state['data'].append({"timestamp": now, "duration": duration_text})
-            st.session_state['last_updated'] = now
-            with open("commute_data.pkl", "wb") as f:
-                pickle.dump(st.session_state['data'], f)
 
         # Check refresh interval before fetching data
         if 'last_updated' not in st.session_state:
