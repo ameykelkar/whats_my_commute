@@ -34,9 +34,9 @@ source_address = st.secrets["SOURCE_ADDRESS"]
 destination_address = st.secrets["DESTINATION_ADDRESS"]
 refresh_interval = 300 # Configurable refresh interval in seconds (5 minutes)
 # Tracking window hours (24h format)
-morning_start, morning_end = 22, 23
+morning_start, morning_end = 8, 11
 # Tracking window hours (24h format)
-evening_start, evening_end = 23, 24
+evening_start, evening_end = 16, 19
 # Helper to format hours into 12h with suffix
 def _12h_format(hour: int) -> str:
     # Normalize 24 to 0 for correct midnight handling
