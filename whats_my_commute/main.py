@@ -11,13 +11,15 @@ tz = pytz.timezone('US/Pacific')
 
 # Initialize session state
 if 'data' not in st.session_state:
-    if os.path.exists("commute_data.pkl"):
+    try:
         with open("commute_data.pkl", "rb") as f:
-            st.session_state['data'] = pickle.load(f)
-        for entry in st.session_state['data']:
+            data = pickle.load(f)
+        # Ensure timezone-aware timestamps
+        for entry in data:
             if entry['timestamp'].tzinfo is None:
                 entry['timestamp'] = entry['timestamp'].replace(tzinfo=tz)
-    else:
+        st.session_state['data'] = data
+    except (FileNotFoundError, EOFError, pickle.UnpicklingError):
         st.session_state['data'] = []
 
 if 'last_updated' not in st.session_state and st.session_state['data']:
@@ -64,6 +66,14 @@ st.title("⏱ What's My Commute 🚗📍")
 today = datetime.now(tz).date()
 filtered_data = [entry for entry in st.session_state['data'] if entry['timestamp'].date() == today]
 latest_entry = max(filtered_data, key=lambda x: x['timestamp']) if filtered_data else None
+# Handle case when no data is available yet
+if latest_entry is None:
+    if is_tracking:
+        # Start initial refresh loop while waiting for first data
+        st_autorefresh(interval=refresh_interval*1000, key="initialrefresh")
+        st.info(f"🕑 Tracking active: Current route {source_label} → {destination_label}. Waiting for first data point...")
+    else:
+        st.info("⏱ Commute tracking is active only between 8–11 AM and 4–6 PM. Refresh occurs every 5 minutes during these windows.")
 if latest_entry:
     st.success(f"🟢 Most recent travel time: **{latest_entry['duration']}** at {latest_entry['timestamp'].strftime('%I:%M %p')}")
 
