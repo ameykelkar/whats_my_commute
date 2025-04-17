@@ -32,6 +32,11 @@ source_address = st.secrets["SOURCE_ADDRESS"]
 destination_address = st.secrets["DESTINATION_ADDRESS"]
 refresh_interval = 300  # Configurable refresh interval in seconds (5 minutes)
 
+# Validate configuration
+if not api_key or not source_address or not destination_address:
+    st.warning("Missing configuration. Please check your API key and route settings.")
+    st.stop()
+
 # Determine tracking window and set source/destination accordingly
 now = datetime.now(tz)
 if 8 <= now.hour < 11:
@@ -133,5 +138,3 @@ if latest_entry:
             st.info("No travel time data available for today.")
     else:
         st.info("⏱ Commute tracking is active only between 8–11 AM and 4–6 PM. Refresh occurs every 5 minutes during these windows.")
-else:
-    st.warning("Missing configuration. Please check your API key and route settings.")
