@@ -103,7 +103,7 @@ def get_travel_time():
         "travelMode": "DRIVE",
         "routingPreference": "TRAFFIC_AWARE"
     }
-    response = requests.post(url, headers=headers, json=payload)
+    response = requests.post(url, headers=headers, json=payload, timeout=60)
     response.raise_for_status()
     data = response.json()
     duration_seconds = int(data['routes'][0]['duration'].rstrip('s'))
