@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import pytz
+import fickling
 
 tz = pytz.timezone('US/Pacific')
 
@@ -13,7 +14,7 @@ tz = pytz.timezone('US/Pacific')
 if 'data' not in st.session_state:
     try:
         with open("commute_data.pkl", "rb") as f:
-            data = pickle.load(f)
+            data = fickling.load(f)
         # Ensure timezone-aware timestamps
         for entry in data:
             if entry['timestamp'].tzinfo is None:
